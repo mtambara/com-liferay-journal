@@ -283,25 +283,7 @@ public class JournalContentDisplayContext {
 			return _ddmTemplate;
 		}
 
-		JournalArticleDisplay articleDisplay = getArticleDisplay();
-
-		if ((articleDisplay == null) ||
-			Validator.isNull(articleDisplay.getDDMTemplateKey())) {
-
-			return null;
-		}
-
-		try {
-			_ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
-				articleDisplay.getGroupId(),
-				PortalUtil.getClassNameId(DDMStructure.class),
-				getDDMTemplateKey(), true);
-		}
-		catch (PortalException pe) {
-			_log.error(
-				"Unable to obtain ddm template for article " +
-					articleDisplay.getId());
-		}
+		_ddmTemplate = _getDDMTemplate(getDDMTemplateKey());
 
 		return _ddmTemplate;
 	}
@@ -360,6 +342,18 @@ public class JournalContentDisplayContext {
 		}
 
 		return _ddmTemplates;
+	}
+
+	public DDMTemplate getDefaultDDMTemplate() {
+		if (_defaultDDMTemplate != null) {
+			return _defaultDDMTemplate;
+		}
+
+		JournalArticle article = getArticle();
+
+		_defaultDDMTemplate = _getDDMTemplate(article.getDDMTemplateKey());
+
+		return _defaultDDMTemplate;
 	}
 
 	public List<ContentMetadataAssetAddonEntry>
@@ -881,6 +875,32 @@ public class JournalContentDisplayContext {
 		return _showSelectArticleIcon;
 	}
 
+	private DDMTemplate _getDDMTemplate(String ddmTemplateKey) {
+		DDMTemplate ddmTemplate = null;
+
+		JournalArticleDisplay articleDisplay = getArticleDisplay();
+
+		if ((articleDisplay == null) ||
+			Validator.isNull(articleDisplay.getDDMTemplateKey())) {
+
+			return ddmTemplate;
+		}
+
+		try {
+			ddmTemplate = DDMTemplateLocalServiceUtil.fetchTemplate(
+				articleDisplay.getGroupId(),
+				PortalUtil.getClassNameId(DDMStructure.class), ddmTemplateKey,
+				true);
+		}
+		catch (PortalException pe) {
+			_log.error(
+				"Unable to obtain ddm template for article " +
+					articleDisplay.getId());
+		}
+
+		return ddmTemplate;
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalContentDisplayContext.class);
 
@@ -907,6 +927,7 @@ public class JournalContentDisplayContext {
 	private DDMTemplate _ddmTemplate;
 	private String _ddmTemplateKey;
 	private List<DDMTemplate> _ddmTemplates;
+	private DDMTemplate _defaultDDMTemplate;
 	private Boolean _enableViewCountIncrement;
 	private Boolean _expired;
 	private Boolean _hasViewPermission;
