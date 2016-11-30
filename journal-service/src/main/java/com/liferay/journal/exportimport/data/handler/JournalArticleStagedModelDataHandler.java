@@ -759,6 +759,11 @@ public class JournalArticleStagedModelDataHandler
 						article.getUuid(), portletDataContext.getScopeGroupId(),
 						existingArticle.getArticleId(), article.getVersion());
 				}
+				else {
+					existingArticleVersion = fetchStagedModelByUuidAndGroupId(
+						article.getUuid(),
+						portletDataContext.getScopeGroupId());
+				}
 
 				if ((existingArticle != null) &&
 					(existingArticleVersion == null)) {
@@ -785,7 +790,7 @@ public class JournalArticleStagedModelDataHandler
 						article.getSmallImageURL(), smallFile, null, articleURL,
 						serviceContext);
 				}
-				else {
+				else if (existingArticle != null) {
 					importedArticle = _journalArticleLocalService.updateArticle(
 						userId, existingArticle.getGroupId(), folderId,
 						existingArticle.getArticleId(), article.getVersion(),
@@ -829,6 +834,10 @@ public class JournalArticleStagedModelDataHandler
 					article.isIndexable(), article.isSmallImage(),
 					article.getSmallImageURL(), smallFile, null, articleURL,
 					serviceContext);
+			}
+
+			if (importedArticle == null) {
+				return;
 			}
 
 			portletDataContext.importClassedModel(article, importedArticle);
